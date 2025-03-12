@@ -8,15 +8,6 @@ export async function getAllUsers(req, res) {
   })
 }
 
-export async function getUserById(req, res) {
-  const { id } = req.params
-  const user = await User.findById(id)
-  res.json({
-    success: true,
-    user,
-  })
-}
-
 export async function registerUser(req, res) {
   const { name, email, password } = req.body
   await User.create({
@@ -28,5 +19,32 @@ export async function registerUser(req, res) {
   res.status(201).cookie('temp', 'lol').json({
     success: true,
     message: 'User Registered Successfully',
+  })
+}
+
+export async function getUserById(req, res) {
+  const { id } = req.params
+  const user = await User.findById(id)
+  res.json({
+    success: true,
+    user,
+  })
+}
+
+export async function updateUser(req, res) {
+  const { id } = req.params
+  const user = await User.findById(id)
+  res.json({
+    success: true,
+    message: 'User Updated',
+  })
+}
+
+export async function deleteUser(req, res) {
+  const { id } = req.params
+  const user = await User.findById(id)
+  res.json({
+    success: true,
+    message: 'User Deleted',
   })
 }
