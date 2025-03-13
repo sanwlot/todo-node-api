@@ -7,7 +7,9 @@ export const app = express()
 
 // middlewares
 app.use(express.json())
-app.use('/users', usersRouter)
+
+// using routes
+app.use('/api/v1/users', usersRouter)
 
 app.get('/', (req, res) => {
   res.send('hello world!')
