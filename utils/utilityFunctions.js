@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken'
 
-export function sendJwtToken(user, res, statusCode = 200, message) {
+export function sendJwtToken(user, res, message, statusCode = 200) {
   // generate jwt token
   const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET)
   res

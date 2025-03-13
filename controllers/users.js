@@ -29,7 +29,7 @@ export async function registerUser(req, res) {
   // register the user and login with cookie
   user = await User.create({ name, email, password: hash })
 
-  sendJwtToken(user, res, 201, 'User successfully registered!')
+  sendJwtToken(user, res, 'User successfully registered!', 201)
 }
 export async function loginUser(req, res) {
   const { email, password } = req.body
@@ -50,7 +50,7 @@ export async function loginUser(req, res) {
       message: 'Invalid credentials',
     })
 
-  sendJwtToken(user, res, 200, 'Logged in successfully')
+  sendJwtToken(user, res, 'Logged in successfully', 200)
 }
 export function logoutUser(req, res) {
   res
