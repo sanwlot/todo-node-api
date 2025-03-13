@@ -1,9 +1,8 @@
 import { User } from '../models/users.js'
 import bcrypt from 'bcrypt'
-import jwt from 'jsonwebtoken'
+import { sendJwtToken } from '../utils/utilityFunctions.js'
 
 export async function getAllUsers(req, res) {}
-
 export async function registerUser(req, res) {
   /* 
     1. destructure the 'name, email and password' from req.body
@@ -30,21 +29,41 @@ export async function registerUser(req, res) {
   // register the user and login with cookie
   user = await User.create({ name, email, password: hash })
 
-  // generate jwt token
-  const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET)
+  sendJwtToken(user, res, 201, 'User successfully registered!')
+}
+export async function loginUser(req, res) {
+  const { email, password } = req.body
 
-  res
-    .status(201)
-    .cookie('token', token, {
-      httpOnly: true,
-      maxAge: 1000 * 60 * 15,
+  const user = await User.findOne({ email }).select('+password')
+
+  if (!user)
+    return res.status(401).json({
+      success: false,
+      message: 'Invalid credentials',
     })
+
+  const isMatch = await bcrypt.compare(password, user.password)
+
+  if (!isMatch)
+    return res.status(401).json({
+      success: false,
+      message: 'Invalid credentials',
+    })
+
+  sendJwtToken(user, res, 200, 'Logged in successfully')
+}
+export function logoutUser(req, res) {
+  res
+    .status(200)
+    .cookie('token', null, { expires: new Date(Date.now()) }) // clear token cookie
     .json({
       success: true,
-      message: 'User registered successfully',
+      message: 'logged out successfully',
     })
 }
-
-export async function loginUser(req, res, next) {}
-
-export async function getUserById(req, res) {}
+export function getMyProfile(req, res) {
+  res.status(200).json({
+    success: true,
+    user: req.user,
+  })
+}
