@@ -1,6 +1,7 @@
 import { User } from '../models/users.js'
 import bcrypt from 'bcrypt'
 import { sendJwtToken } from '../utils/utilityFunctions.js'
+import ErrorHandler from '../middlewares/error.js'
 
 export async function registerUser(req, res, next) {
   /* 
@@ -14,7 +15,7 @@ export async function registerUser(req, res, next) {
 
   let user = await User.findOne({ email })
 
-  if (user) return next(new Error('User already exists'))
+  if (user) return next(new ErrorHandler('User already exists'))
 
   // generate hashed password
   const hash = await bcrypt.hash(password, 10)
@@ -29,11 +30,11 @@ export async function loginUser(req, res, next) {
 
   const user = await User.findOne({ email }).select('+password')
 
-  if (!user) return next(new Error('Invalid credentials'))
+  if (!user) return next(new ErrorHandler('Invalid credentials'))
 
   const isMatch = await bcrypt.compare(password, user.password)
 
-  if (!isMatch) return next(new Error('Invalid credentials'))
+  if (!isMatch) return next(new ErrorHandler('Invalid credentials'))
 
   sendJwtToken(user, res, 'Logged in successfully', 200)
 }
