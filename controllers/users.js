@@ -2,8 +2,7 @@ import { User } from '../models/users.js'
 import bcrypt from 'bcrypt'
 import { sendJwtToken } from '../utils/utilityFunctions.js'
 
-export async function getAllUsers(req, res) {}
-export async function registerUser(req, res) {
+export async function registerUser(req, res, next) {
   /* 
     1. destructure the 'name, email and password' from req.body
     2. find the user in the db by email
@@ -15,13 +14,7 @@ export async function registerUser(req, res) {
 
   let user = await User.findOne({ email })
 
-  if (user) {
-    // error
-    return res.status(404).json({
-      success: false,
-      message: 'User already exists',
-    })
-  }
+  if (user) return next(new Error('User already exists'))
 
   // generate hashed password
   const hash = await bcrypt.hash(password, 10)
@@ -31,24 +24,16 @@ export async function registerUser(req, res) {
 
   sendJwtToken(user, res, 'User successfully registered!', 201)
 }
-export async function loginUser(req, res) {
+export async function loginUser(req, res, next) {
   const { email, password } = req.body
 
   const user = await User.findOne({ email }).select('+password')
 
-  if (!user)
-    return res.status(401).json({
-      success: false,
-      message: 'Invalid credentials',
-    })
+  if (!user) return next(new Error('Invalid credentials'))
 
   const isMatch = await bcrypt.compare(password, user.password)
 
-  if (!isMatch)
-    return res.status(401).json({
-      success: false,
-      message: 'Invalid credentials',
-    })
+  if (!isMatch) return next(new Error('Invalid credentials'))
 
   sendJwtToken(user, res, 'Logged in successfully', 200)
 }
