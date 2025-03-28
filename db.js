@@ -5,6 +5,6 @@ export function connectDB() {
     .connect(process.env.DB_URI, {
       dbName: 'nodeApi',
     })
-    .then(() => console.log('db connected'))
+    .then((c) => console.log(`db connected with ${c.connection.host}`))
     .catch((e) => console.log(e))
 }
