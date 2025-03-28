@@ -1,5 +1,5 @@
 import { User } from '../models/users.js'
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcryptjs'
 import { sendJwtToken } from '../utils/utilityFunctions.js'
 import ErrorHandler from '../middlewares/error.js'
 
