@@ -11,32 +11,40 @@ export async function registerUser(req, res, next) {
     4. if not then hash the password, then register the user in db with hashed password, 
        then create a jwt token and send it with res as cookie and finally send message as success
   */
-  const { name, email, password } = req.body
+  try {
+    const { name, email, password } = req.body
 
-  let user = await User.findOne({ email })
+    let user = await User.findOne({ email })
 
-  if (user) return next(new ErrorHandler('User already exists'))
+    if (user) return next(new ErrorHandler('User already exists'))
 
-  // generate hashed password
-  const hash = await bcrypt.hash(password, 10)
+    // generate hashed password
+    const hash = await bcrypt.hash(password, 10)
 
-  // register the user and login with cookie
-  user = await User.create({ name, email, password: hash })
+    // register the user and login with cookie
+    user = await User.create({ name, email, password: hash })
 
-  sendJwtToken(user, res, 'User successfully registered!', 201)
+    sendJwtToken(user, res, 'User successfully registered!', 201)
+  } catch (error) {
+    next(error)
+  }
 }
 export async function loginUser(req, res, next) {
-  const { email, password } = req.body
+  try {
+    const { email, password } = req.body
 
-  const user = await User.findOne({ email }).select('+password')
+    const user = await User.findOne({ email }).select('+password')
 
-  if (!user) return next(new ErrorHandler('Invalid credentials'))
+    if (!user) return next(new ErrorHandler('Invalid credentials'))
 
-  const isMatch = await bcrypt.compare(password, user.password)
+    const isMatch = await bcrypt.compare(password, user.password)
 
-  if (!isMatch) return next(new ErrorHandler('Invalid credentials'))
+    if (!isMatch) return next(new ErrorHandler('Invalid credentials'))
 
-  sendJwtToken(user, res, 'Logged in successfully', 200)
+    sendJwtToken(user, res, 'Logged in successfully', 200)
+  } catch (error) {
+    next(error)
+  }
 }
 export function logoutUser(req, res) {
   res
@@ -45,6 +53,8 @@ export function logoutUser(req, res) {
     .json({
       success: true,
       message: 'logged out successfully',
+      sameSite: process.env.NODE_ENV === 'dev' ? 'lax' : 'none',
+      secure: process.env.NODE_ENV === 'dev' ? false : true,
     })
 }
 export function getMyProfile(req, res) {

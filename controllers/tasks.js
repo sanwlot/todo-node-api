@@ -2,55 +2,71 @@ import ErrorHandler from '../middlewares/error.js'
 import { Task } from '../models/tasks.js'
 
 export const getAllTasks = async (req, res, next) => {
-  const tasks = await Task.find({ user: req.user._id })
+  try {
+    const tasks = await Task.find({ user: req.user._id })
 
-  if (!tasks) return next(new ErrorHandler('Tasks not found', 404))
+    if (!tasks) return next(new ErrorHandler('Tasks not found', 404))
 
-  res.json({
-    success: true,
-    tasks,
-  })
+    res.json({
+      success: true,
+      tasks,
+    })
+  } catch (error) {
+    next(error)
+  }
 }
 
-export const addTask = async (req, res) => {
-  const { title, description } = req.body
+export const addTask = async (req, res, next) => {
+  try {
+    const { title, description } = req.body
 
-  const task = await Task.create({
-    title,
-    description,
-    user: req.user._id,
-  })
+    const task = await Task.create({
+      title,
+      description,
+      user: req.user._id,
+    })
 
-  res.status(201).json({
-    success: true,
-    task,
-  })
+    res.status(201).json({
+      success: true,
+      task,
+    })
+  } catch (error) {
+    next(error)
+  }
 }
 
 export const deleteTask = async (req, res, next) => {
-  const { id } = req.params
-  const task = await Task.findById(id)
+  try {
+    const { id } = req.params
+    const task = await Task.findById(id)
 
-  if (!task) return next(new ErrorHandler('Task not found', 404))
+    if (!task) return next(new ErrorHandler('Task not found', 404))
 
-  await Task.deleteOne({ _id: id })
+    await Task.deleteOne({ _id: id })
 
-  res.json({
-    success: true,
-    message: 'task successfully deleted!',
-  })
+    res.json({
+      success: true,
+      message: 'task successfully deleted!',
+    })
+  } catch (error) {
+    next(error)
+  }
 }
 
 export async function updateTask(req, res, next) {
-  const task = await Task.findById(req.params.id)
+  try {
+    const task = await Task.findById(req.params.id)
 
-  if (!task) return next(new ErrorHandler('Task not found', 404))
+    if (!task) return next(new ErrorHandler('Task not found', 404))
 
-  task.isCompleted = !task.isCompleted
-  await task.save()
+    task.isCompleted = !task.isCompleted
+    await task.save()
 
-  res.status(200).json({
-    success: true,
-    message: 'task updated',
-  })
+    res.status(200).json({
+      success: true,
+      message: 'task updated',
+    })
+  } catch (error) {
+    next(error)
+  }
 }
