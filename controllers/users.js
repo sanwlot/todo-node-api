@@ -46,17 +46,15 @@ export async function loginUser(req, res, next) {
     next(error)
   }
 }
-
 export function logoutUser(req, res) {
   res
-    .status(200)
-    .cookie('token', '', {
-      expires: new Date(Date.now()),
+    .clearCookie('token', {
+      path: '/',
+      secure: process.env.NODE_ENV === 'dev' ? false : true,
+      sameSite: process.env.NODE_ENV === 'dev' ? 'lax' : 'none',
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production', // true in production, false in dev
-      sameSite: process.env.NODE_ENV === 'development' ? 'lax' : 'none',
-      path: '/', // make sure this matches how the cookie was set
     })
+    .status(200)
     .json({
       success: true,
       message: 'logged out successfully',
