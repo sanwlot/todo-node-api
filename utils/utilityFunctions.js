@@ -10,6 +10,7 @@ export function sendJwtToken(user, res, message, statusCode = 200) {
       maxAge: 1000 * 60 * 15,
       sameSite: process.env.NODE_ENV === 'dev' ? 'lax' : 'none',
       secure: process.env.NODE_ENV === 'dev' ? false : true,
+      path: '/',
     })
     .json({
       success: true,
